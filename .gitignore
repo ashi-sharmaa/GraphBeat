@@ -1,0 +1,18 @@
+# Secrets
+.env
+
+# Python / Django
+backend/venv/
+backend/requirements.txt
+*.py[cod]
+__pycache__/
+db.sqlite3
+
+# React / Node
+frontend/node_modules/
+frontend/dist/
+.eslintcache
+
+# OS Files
+.DS_Store
+Thumbs.db
