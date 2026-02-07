@@ -12,8 +12,15 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 
+import os
+from neomodel import config
+from dotenv import load_dotenv
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load .env from the root folder
+load_dotenv(os.path.join(BASE_DIR.parent, '.env'))
 
 
 # Quick-start development settings - unsuitable for production
@@ -37,9 +44,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_neomodel',
+    'corsheaders',        
+    'rest_framework',    
+    'api',               
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware', 
+    'django.middleware.security.SecurityMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -115,3 +128,26 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# --- NEO4J CONFIGURATION ---
+NEO4J_URI = os.getenv('NEO4J_URI') 
+NEO4J_USER = os.getenv('NEO4J_USERNAME', 'neo4j')
+NEO4J_PASSWORD = os.getenv('NEO4J_PASSWORD')
+
+# neomodel needs the credentials inside the URL
+clean_uri = NEO4J_URI.replace('neo4j+s://', '').replace('bolt+s://', '')
+config.DATABASE_URL = f'neo4j+s://{NEO4J_USER}:{NEO4J_PASSWORD}@{clean_uri}'
+
+# --- CORS & API SETTINGS ---
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173", 
+    "http://127.0.0.1:5173",
+    "http://localhost:3000"
+]
+
+# Soundcharts 
+SOUNDCHARTS_APP_ID = os.getenv("SOUNDCHARTS_APP_ID")
+SOUNDCHARTS_API_KEY = os.getenv("SOUNDCHARTS_API_KEY")
+LASTFM_API_KEY = os.getenv("LASTFM_API_KEY")
+LASTFM_SECRET = os.getenv("LASTFM_SECRET")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
