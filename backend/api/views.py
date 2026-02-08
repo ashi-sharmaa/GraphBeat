@@ -11,9 +11,9 @@ def generate_bridge(request):
     """
     seeds = request.data.get('seeds', [])
     
-    if len(seeds) != 2:
+    if len(seeds) < 2 or len(seeds) > 3:
         return Response({
-            "error": "Please provide exactly 2 seed songs"
+            "error": "Please provide 2-3 seed songs"
         }, status=400)
     
     ingestion_log = []
@@ -29,7 +29,8 @@ def generate_bridge(request):
     
     # Phase 2: Find bridges using hardcoded query
     song_titles = [seed['title'] for seed in seeds]
-    result = find_musical_bridge(song_titles)
+    input_artists = [seed['artist'] for seed in seeds]
+    result = find_musical_bridge(song_titles, input_artists)
     
     # Phase 3: Return structured response
     return Response({
