@@ -31,7 +31,7 @@ export default function ThinkingState({ currentStep }) {
   }, [])
 
   return (
-    <div className="bg-gray-900 rounded-xl p-8 my-8 text-white min-h-96 flex flex-col items-center justify-center shadow-lg border border-gray-800 overflow-hidden relative">
+    <div className="bg-transparent rounded-xl p-8 my-8 text-white min-h-96 flex flex-col items-center justify-center shadow-none border border-transparent overflow-hidden relative">
       {/* Background glow */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-orange-500/5 rounded-full blur-3xl pulse-glow" />

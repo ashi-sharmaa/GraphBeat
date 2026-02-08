@@ -9,6 +9,7 @@ requests
 langchain
 langchain-community
 langchain-groq
+langchain-neo4j
 neo4j
 gunicorn
 whitenoise
