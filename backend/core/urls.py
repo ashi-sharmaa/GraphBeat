@@ -16,9 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from api.views import GenerateBridgeView
+from api.views import generate_bridge
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/generate-bridge/', GenerateBridgeView.as_view(), name='generate-bridge'),
+    path('api/generate-bridge/', generate_bridge, name='generate-bridge'),
 ]
