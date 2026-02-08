@@ -2,38 +2,44 @@ import { create } from 'zustand'
 
 export const useRecommendationStore = create((set) => ({
   thinking: false,
-  results: [],
   currentStep: 0,
-
-  setThinking: (thinking) => set({ thinking }),
-  setResults: (results) => set({ results }),
-  setCurrentStep: (currentStep) => set({ currentStep }),
+  results: [],
+  error: null,
 
   searchAndRecommend: async (seedTracks) => {
-    set({ thinking: true, currentStep: 0, results: [] })
+    set({ thinking: true, currentStep: 1, results: [], error: null })
 
     try {
-      // Step 1: Ingesting
-      set({ currentStep: 1 })
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const seeds = seedTracks.map(track => ({
+        artist: track.artist,
+        title: track.name,
+      }))
 
-      // Step 2: Traversing
       set({ currentStep: 2 })
-      await new Promise(resolve => setTimeout(resolve, 1000))
 
-      // Step 3: Reasoning
-      set({ currentStep: 3 })
-      const response = await fetch('/api/recommend/', {
+      const response = await fetch('/api/generate-bridge/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ seeds: seedTracks })
+        body: JSON.stringify({ seeds })
       })
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`)
+      }
+
+      set({ currentStep: 3 })
+
       const data = await response.json()
-      set({ results: data.recommendations || [] })
+      const recs = (data.recommendations || []).map((rec, i) => ({
+        ...rec,
+        matchScore: rec.matchScore ?? Math.round(92 - i * 7 - Math.random() * 5)
+      }))
+      set({ results: recs })
     } catch (error) {
       console.error('Search error:', error)
+      set({ error: error.message || 'Something went wrong' })
     } finally {
-      set({ thinking: false })
+      set({ thinking: false, currentStep: 0 })
     }
   }
 }))

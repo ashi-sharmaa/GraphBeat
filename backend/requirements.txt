@@ -1,0 +1,14 @@
+django
+djangorestframework
+django-cors-headers
+neomodel
+django-neomodel
+python-dotenv
+pylast
+requests
+langchain
+langchain-community
+langchain-groq
+neo4j
+gunicorn
+whitenoise

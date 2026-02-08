@@ -3,7 +3,6 @@
 
 # Python / Django
 backend/venv/
-backend/requirements.txt
 *.py[cod]
 __pycache__/
 db.sqlite3

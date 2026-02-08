@@ -27,12 +27,12 @@ load_dotenv(os.path.join(BASE_DIR.parent, '.env'))
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ez#$!10v_iu2wmo4v)-vwc-lz!20ku-h6paj1r$)p@do92-#-l'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-ez#$!10v_iu2wmo4v)-vwc-lz!20ku-h6paj1r$)p@do92-#-l')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 
 # Application definition
@@ -53,7 +53,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware', 
     'django.middleware.security.SecurityMiddleware',
-    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -128,6 +128,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # --- NEO4J CONFIGURATION ---
 NEO4J_URI = os.getenv('NEO4J_URI') 
@@ -139,11 +140,7 @@ clean_uri = NEO4J_URI.replace('neo4j+s://', '').replace('bolt+s://', '')
 config.DATABASE_URL = f'neo4j+s://{NEO4J_USER}:{NEO4J_PASSWORD}@{clean_uri}'
 
 # --- CORS & API SETTINGS ---
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173", 
-    "http://127.0.0.1:5173",
-    "http://localhost:3000"
-]
+CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000').split(',')
 
 # Soundcharts 
 SOUNDCHARTS_APP_ID = os.getenv("SOUNDCHARTS_APP_ID")

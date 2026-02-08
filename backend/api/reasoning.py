@@ -1,5 +1,4 @@
 import os
-import re
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain_neo4j import Neo4jGraph
@@ -12,13 +11,13 @@ graph = Neo4jGraph(
     url=os.getenv("NEO4J_URI"),
     username=os.getenv("NEO4J_USERNAME"),
     password=os.getenv("NEO4J_PASSWORD"),
-    refresh_schema=False 
+    refresh_schema=False
 )
 
 llm = ChatGroq(
     groq_api_key=os.getenv("GROQ_API_KEY"),
     model_name="llama-3.3-70b-versatile",
-    temperature=0.3  # Slight creativity for explanations
+    temperature=0.7
 )
 
 def find_bridges(song_titles, input_artists=None):
@@ -44,9 +43,6 @@ def find_bridges(song_titles, input_artists=None):
 
     exclusion_list = ", ".join([f"${k}" for k in song_params.keys()])
 
-    # Weighted scoring: numeric traits (2pts) > vibe tags (1pt)
-    # Exclude input artists so bridges are true discoveries
-    # Fetch extra candidates (LIMIT 8) for artist diversity filtering in Python
     query = match_pattern + f"""
     WITH DISTINCT t
     MATCH (bridge:Song)-[:HAS_TRAIT]->(t)
@@ -100,6 +96,39 @@ def find_bridges(song_titles, input_artists=None):
             if len(bridges) >= 2:
                 break
 
+    # --- Enrich: get per-bridge trait connections to each input song ---
+    bridges = _enrich_bridge_traits(bridges, song_titles)
+
+    return bridges
+
+
+def _enrich_bridge_traits(bridges, song_titles):
+    """
+    For each bridge, query which traits it shares with EACH individual input song.
+    Returns bridges with a 'trait_connections' dict mapping each input song to its shared traits,
+    and replaces shared_traits with the unique union (so each bridge shows its full picture).
+    """
+    for bridge in bridges:
+        trait_connections = {}
+        all_traits = set()
+
+        for song_title in song_titles:
+            query = """
+            MATCH (bridge:Song {title: $bridge_title})-[:HAS_TRAIT]->(t:Trait)<-[:HAS_TRAIT]-(seed:Song {title: $seed_title})
+            RETURN t.value as trait, t.type as type
+            """
+            results, _ = db.cypher_query(query, {
+                "bridge_title": bridge["title"],
+                "seed_title": song_title
+            })
+            traits_for_seed = [row[0] for row in results]
+            trait_connections[song_title] = traits_for_seed
+            all_traits.update(traits_for_seed)
+
+        bridge["trait_connections"] = trait_connections
+        bridge["shared_traits"] = list(all_traits)
+        bridge["trait_count"] = len(all_traits)
+
     return bridges
 
 
@@ -141,36 +170,61 @@ def _fallback_similar_to(song_titles, input_artists, existing_bridges, seen_arti
 
     return existing_bridges
 
+
 def generate_individual_explanations(song_titles, bridges):
     """
     Generate a unique explanation for each bridge recommendation.
+    Uses per-seed trait connections for specificity.
     """
     if not bridges:
         return []
-    
-    # Format input songs nicely
-    if len(song_titles) == 2:
-        input_songs_str = f"'{song_titles[0]}' and '{song_titles[1]}'"
-    else:
-        input_songs_str = f"'{song_titles[0]}', '{song_titles[1]}', and '{song_titles[2]}'"
-    
+
     recommendations = []
-    for bridge in bridges:
-        prompt = f"""In 1 sentence, explain why "{bridge['title']}" by {bridge['artist']} connects {input_songs_str}.
+    for i, bridge in enumerate(bridges):
+        # Build per-seed connection details
+        connection_details = []
+        trait_connections = bridge.get("trait_connections", {})
+        for seed, traits in trait_connections.items():
+            if traits:
+                connection_details.append(f"- Connects to '{seed}' through: {', '.join(traits)}")
 
-Shared traits: {', '.join(bridge['shared_traits'][:4])}
+        connections_str = "\n".join(connection_details) if connection_details else "General musical similarity"
 
-Be specific about the music. No filler words like "masterfully" or "irresistible". Just say what connects them.
+        # Vary the prompt angle per bridge
+        angles = [
+            "Focus on what makes this song a surprising or unexpected link.",
+            "Focus on the sonic texture and production choices that tie these together.",
+            "Focus on the rhythm, tempo, and energy that these songs share.",
+        ]
+        angle = angles[i % len(angles)]
+
+        prompt = f"""You are a music critic writing a 2-sentence explanation for why "{bridge['title']}" by {bridge['artist']} is a musical bridge between the user's songs.
+
+Per-song connections:
+{connections_str}
+
+{angle}
+
+Rules:
+- Be specific about THIS song's sound, not generic praise
+- Never use words like "masterfully", "perfectly", "seamlessly", "irresistible"
+- Reference actual musical elements (synths, beats, vocal style, production, genre blend)
+- Do NOT start with the song title
+- Keep it to exactly 2 sentences
 
 Explanation:"""
-        
+
         try:
             response = llm.invoke(prompt)
             explanation = response.content.strip()
+            # Strip any quotes the LLM might wrap it in
+            if explanation.startswith('"') and explanation.endswith('"'):
+                explanation = explanation[1:-1]
         except Exception as e:
             print(f"LLM error for {bridge['title']}: {e}")
-            explanation = f"This track shares {bridge['trait_count']} musical traits with your input songs, including {', '.join(bridge['shared_traits'][:2])}."
-        
+            traits_sample = bridge["shared_traits"][:3]
+            explanation = f"Shares {', '.join(traits_sample)} with your input songs."
+
         recommendations.append({
             "title": bridge["title"],
             "artist": bridge["artist"],
@@ -178,21 +232,13 @@ Explanation:"""
             "trait_count": bridge["trait_count"],
             "explanation": explanation
         })
-    
+
     return recommendations
 
 def find_musical_bridge(song_titles, input_artists=None):
     """
     Main entry point - takes list of 2-3 song titles and returns structured recommendations.
-
-    Args:
-        song_titles: List of 2-3 song title strings
-        input_artists: List of artist names to exclude from results
-
-    Returns:
-        dict with 'recommendations' (list) and 'summary' (string)
     """
-    # Validate input
     if not isinstance(song_titles, list) or len(song_titles) < 2 or len(song_titles) > 3:
         return {
             "error": "Please provide 2-3 songs as a list",
@@ -202,16 +248,14 @@ def find_musical_bridge(song_titles, input_artists=None):
 
     print(f"Finding bridges for: {song_titles}")
 
-    # Execute query
     bridges = find_bridges(song_titles, input_artists)
-    
+
     if not bridges:
         return {
             "recommendations": [],
-            "summary": "No bridge songs found that share traits with all your input songs. Try ingesting more similar tracks or choosing songs with more musical overlap."
+            "summary": "No bridge songs found that share traits with all your input songs. Try choosing songs with more musical overlap."
         }
-    
-    # Generate per-recommendation explanations
+
     recommendations = generate_individual_explanations(song_titles, bridges)
 
     return {
