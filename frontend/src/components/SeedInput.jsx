@@ -71,7 +71,7 @@ export default function SeedInput({ onSearch }) {
         {seeds.map((seed, index) => (
           <div key={index} className="bg-gray-800 rounded-lg p-3 flex flex-col border border-gray-700 w-full sm:w-72">
             <div className="flex items-center justify-between mb-2 h-5">
-              <div className="text-sm font-semibold bg-linear-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent uppercase tracking-wider">
+              <div className="text-sm font-semibold bg-linear-to-r from-[#ff914d] to-pink-500 bg-clip-text text-transparent uppercase tracking-wider">
                 Seed {index + 1}
               </div>
               {seeds.length > 1 && (
@@ -120,12 +120,12 @@ export default function SeedInput({ onSearch }) {
         {seeds.length < SEED_LIMIT && (
           <Button
             onClick={handleAddSeed}
-            className="group rounded-lg p-3 h-auto cursor-pointer border-2 border-dashed border-gray-600 hover:border-orange-400 bg-gray-800 hover:bg-gray-750 transition-colors w-full sm:w-72"
+            className="group rounded-lg p-3 h-auto cursor-pointer border-2 border-dashed border-gray-600 hover:border-[#ff914d] bg-gray-800 hover:bg-gray-750 transition-colors w-full sm:w-72"
             variant="ghost"
           >
             <div className="flex flex-col items-center justify-center">
-              <span className="text-3xl mb-2 text-gray-500 group-hover:text-orange-400 transition-colors">+</span>
-              <span className="text-sm font-semibold text-gray-500 group-hover:text-orange-400 transition-colors">Add Seed</span>
+              <span className="text-3xl mb-2 text-gray-500 group-hover:text-[#ff914d] transition-colors">+</span>
+              <span className="text-sm font-semibold text-gray-500 group-hover:text-[#ff914d] transition-colors">Add Seed</span>
             </div>
           </Button>
         )}

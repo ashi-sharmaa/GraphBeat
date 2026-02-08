@@ -8,9 +8,9 @@ export default function DNACard({ result }) {
   } = result
 
   return (
-    <div className="relative overflow-hidden rounded-xl p-6 bg-gray-900 border border-gray-800 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/10 hover:-translate-y-2 w-full max-w-sm flex flex-col">
+    <div className="relative overflow-hidden rounded-xl p-6 bg-gray-900 border border-gray-800 transition-all duration-300 hover:shadow-2xl hover:shadow-[#ff914d]/10 hover:-translate-y-2 w-full max-w-sm flex flex-col">
       {/* Accent line at top */}
-      <div className="absolute top-0 left-0 right-0 h-0.5 bg-linear-to-r from-orange-500 to-pink-500"></div>
+      <div className="absolute top-0 left-0 right-0 h-0.5 bg-linear-to-r from-[#ff914d] to-pink-500"></div>
 
       {/* Card Header */}
       <div className="mb-4 relative z-10">
@@ -20,7 +20,7 @@ export default function DNACard({ result }) {
 
       {/* Match Score */}
       <div className="flex items-center gap-3 mb-5 relative z-10">
-        <div className="bg-orange-500 text-white px-4 py-2 rounded-full font-bold text-xl min-w-fit">
+        <div className="bg-[#ff914d] text-white px-4 py-2 rounded-full font-bold text-xl min-w-fit">
           {Math.round(matchScore)}%
         </div>
         <span className="text-base text-gray-400 font-medium">Match</span>
@@ -34,7 +34,7 @@ export default function DNACard({ result }) {
             {shared_traits.map((trait, idx) => (
               <span
                 key={idx}
-                className="text-sm text-orange-300/80 px-2.5 py-1 rounded-md bg-orange-500/5 border border-orange-500/15"
+                className="text-sm text-[#ff914d]/80 px-2.5 py-1 rounded-md bg-[#ff914d]/5 border border-[#ff914d]/15"
               >
                 {trait}
               </span>
@@ -45,7 +45,7 @@ export default function DNACard({ result }) {
 
       {/* Explanation */}
       {explanation && (
-        <div className="bg-gray-800/60 rounded-lg p-4 relative z-10 grow mb-4 border-l-2 border-orange-500/30">
+        <div className="bg-gray-800/60 rounded-lg p-4 relative z-10 grow mb-4 border-l-2 border-[#ff914d]/30">
           <p className="text-base text-gray-300 leading-relaxed m-0">{explanation}</p>
         </div>
       )}
@@ -56,7 +56,7 @@ export default function DNACard({ result }) {
           href={`https://open.spotify.com/search/${encodeURIComponent(title + ' ' + artist)}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-3.5 py-2 text-gray-300 hover:text-orange-300 bg-gray-800/40 hover:bg-gray-800/70 border border-gray-700/50 hover:border-orange-500/30 rounded-lg text-sm transition-all duration-200"
+          className="inline-flex items-center gap-2 px-3.5 py-2 text-gray-300 hover:text-[#ff914d] bg-gray-800/40 hover:bg-gray-800/70 border border-gray-700/50 hover:border-[#ff914d]/30 rounded-lg text-sm transition-all duration-200"
         >
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
             <path d="M8 5v14l11-7z"></path>

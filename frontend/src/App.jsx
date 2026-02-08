@@ -13,7 +13,7 @@ function App() {
       <header className="w-full pt-16 pb-10">
         <div className="flex flex-col items-center text-center">
             <img src={logo} alt="GraphBeat logo" className="h-44 mb-1" />
-            <p className="text-xl text-gray-400 tracking-wider font-light">Discover the <span className="bg-linear-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent font-medium">underlying connections</span> between your favorite songs!</p>
+            <p className="text-xl text-gray-400 tracking-wider font-light">Discover the <span className="bg-linear-to-r from-[#ff914d] to-pink-500 bg-clip-text text-transparent font-medium">underlying connections</span> between your favorite songs!</p>
         </div>
       </header>
 

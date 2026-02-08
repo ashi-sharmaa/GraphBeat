@@ -24,7 +24,8 @@ export const useRecommendationStore = create((set) => ({
       })
 
       if (!response.ok) {
-        throw new Error(`API error: ${response.status}`)
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `API error: ${response.status}`)
       }
 
       set({ currentStep: 3 })
@@ -34,6 +35,11 @@ export const useRecommendationStore = create((set) => ({
         ...rec,
         matchScore: rec.matchScore ?? Math.round(92 - i * 7 - Math.random() * 5)
       }))
+
+      if (recs.length === 0) {
+        set({ error: data.summary || 'No bridge songs found. Try different seed songs with more musical overlap.' })
+      }
+
       set({ results: recs })
     } catch (error) {
       console.error('Search error:', error)
