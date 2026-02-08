@@ -6,7 +6,7 @@ The system ingests technical data from Soundcharts and Last.fm, builds a graph o
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 **Frontend:**
 - React (Vite), Tailwind CSS
@@ -43,7 +43,7 @@ The system ingests technical data from Soundcharts and Last.fm, builds a graph o
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 - **Cross-Genre Discovery**: Finds connections between seemingly unrelated artists through shared musical DNA
 - **Shadow Graph Network**: Automatically expands the knowledge graph with similar tracks for richer recommendations
@@ -53,7 +53,7 @@ The system ingests technical data from Soundcharts and Last.fm, builds a graph o
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Python 3.13+
@@ -119,9 +119,9 @@ The system ingests technical data from Soundcharts and Last.fm, builds a graph o
 
 ---
 
-## 🎯 Future Enhancements
+## Future Enhancements
 
-- Weighted edges — factor in how strong a trait connection is (e.g., BPM within 5 vs within 20)
+- Weighted edges: factor in how strong a trait connection is (e.g., BPM within 5 vs within 20)
 - 3D graph visualization of musical connections
 - Spotify OAuth login: pull a user's top tracks/playlists as seeds automatically
 - "Explore deeper" button on a result card that re-runs the algorithm using that bridge song as a new seed
